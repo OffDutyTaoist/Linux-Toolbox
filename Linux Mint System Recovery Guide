@@ -1,0 +1,132 @@
+# 🛠️ Linux Mint System Recovery Guide
+
+**For restoring BOINC, Gridcoin, Spotify, and APT functionality on Linux Mint 22.1 (Ubuntu 24.04 base).**
+
+---
+
+## 🧾 System Info
+- **Distro**: Linux Mint 22.1 (Xia)
+- **Base**: Ubuntu 24.04 (Noble)
+- **Kernel**: `uname -r`
+- **APT version**: `apt --version`
+
+---
+
+## 🔧 BOINC Setup
+
+### Create launch script:
+```bash
+nano ~/boinc-launch.sh
+```
+
+Paste in:
+```bash
+#!/bin/bash
+boinc --daemon
+boincmgr &
+```
+
+Make it executable:
+```bash
+chmod +x ~/boinc-launch.sh
+```
+
+### Autostart:
+```bash
+mkdir -p ~/.config/autostart
+nano ~/.config/autostart/boinc-manager.desktop
+```
+
+Paste in:
+```ini
+[Desktop Entry]
+Type=Application
+Exec=/home/YOUR_USERNAME/boinc-launch.sh
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Name=BOINC Manager
+```
+
+Replace `YOUR_USERNAME` accordingly.
+
+---
+
+## 🪙 Gridcoin Wallet Recovery
+
+### Config file:
+- Location: `~/.GridcoinResearch/gridcoin.conf`
+
+### Wallet data:
+- `wallet.dat` and blockchain are stored in: `~/.GridcoinResearch`
+
+### To reindex:
+```bash
+gridcoinresearchd -reindex
+```
+
+### Check logs:
+```bash
+tail -f ~/.GridcoinResearch/debug.log
+```
+
+---
+
+## 🎵 Spotify APT Repo Fix (GPG Key)
+
+### Problem:
+```
+NO_PUBKEY C85668DF69375001
+```
+
+### Fix:
+```bash
+curl -sS https://download.spotify.com/debian/pubkey_C85668DF69375001.gpg | sudo gpg --dearmor --yes -o /etc/apt/trusted.gpg.d/spotify.gpg
+```
+
+Update repo list:
+```bash
+sudo nano /etc/apt/sources.list.d/spotify.list
+```
+
+Ensure it says:
+```bash
+deb [signed-by=/etc/apt/trusted.gpg.d/spotify.gpg] http://repository.spotify.com stable non-free
+```
+
+Then:
+```bash
+sudo apt update
+```
+
+---
+
+## 🛠️ APT Recovery Commands
+
+### Full repair sequence:
+```bash
+sudo apt clean
+sudo apt autoclean
+sudo apt autoremove
+sudo dpkg --configure -a
+sudo apt --fix-broken install
+sudo rm -rf /var/lib/apt/lists/*
+sudo apt update
+```
+
+### Find conflicting or broken repos:
+```bash
+grep -r "http" /etc/apt/sources.list /etc/apt/sources.list.d/
+```
+
+---
+
+## ✅ Good to Know
+- Backup this guide to your GitHub and a USB drive.
+- Sync `~/.GridcoinResearch` and BOINC project keys for full backup.
+- For Spotify, monitor key changes at: https://download.spotify.com/debian/
+
+---
+
+_“Better to have a toolbox and not need it, than to need one and find nothing but a broken lockpick.” — Chip Crow_
+
