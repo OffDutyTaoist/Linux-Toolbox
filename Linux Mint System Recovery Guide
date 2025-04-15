@@ -121,6 +121,56 @@ grep -r "http" /etc/apt/sources.list /etc/apt/sources.list.d/
 
 ---
 
+## 🔧 Maintenance Toolbox
+
+Common commands for day-to-day system maintenance:
+
+### 1. Basic system health
+```bash
+sudo apt update && sudo apt upgrade
+```
+Runs package index update and installs new updates. Use regularly.
+
+### 2. Clean up unused packages
+```bash
+sudo apt autoremove
+sudo apt autoclean
+```
+Removes no-longer-needed packages and cleans up old cached installers.
+
+### 3. Check for broken or unconfigured packages
+```bash
+sudo dpkg --configure -a
+sudo apt --fix-broken install
+```
+Fixes partially installed or broken packages.
+
+### 4. Log monitoring (optional, for errors or debugging)
+```bash
+tail -f /var/log/syslog
+journalctl -p err -b
+```
+
+### 5. Check disk usage
+```bash
+df -h
+```
+
+### 6. Backup important configs (recommended)
+```bash
+tar czvf ~/boinc-backup.tar.gz ~/.BOINC
+cp ~/.GridcoinResearch/wallet.dat ~/wallet-backup.dat
+``` 
+Store backups externally.
+
+### 7. Optional: Reboot once a week
+```bash
+sudo reboot
+```
+It’s not Windows, but it doesn’t hurt.
+
+---
+
 ## ✅ Good to Know
 - Backup this guide to your GitHub and a USB drive.
 - Sync `~/.GridcoinResearch` and BOINC project keys for full backup.
