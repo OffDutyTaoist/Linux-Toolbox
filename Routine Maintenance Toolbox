@@ -1,0 +1,34 @@
+🔧 Maintenance Toolbox
+
+Common commands for day-to-day system maintenance:
+
+1. Basic system health
+sudo apt update && sudo apt upgrade
+Runs package index update and installs new updates. Use regularly.
+
+2. Clean up unused packages
+sudo apt autoremove
+sudo apt autoclean
+Removes no-longer-needed packages and cleans up old cached installers.
+
+3. Check for broken or unconfigured packages
+sudo dpkg --configure -a
+sudo apt --fix-broken install
+Fixes partially installed or broken packages.
+
+4. Log monitoring (optional, for errors or debugging)
+tail -f /var/log/syslog
+journalctl -p err -b
+                   
+5. Check disk usage
+df -h
+                   
+6. Backup important configs (recommended)
+tar czvf ~/boinc-backup.tar.gz ~/.BOINC
+cp ~/.GridcoinResearch/wallet.dat ~/wallet-backup.dat
+Store backups externally.
+                   
+7. Optional: Reboot once a week
+sudo reboot
+                   
+It’s not Windows, but it doesn’t hurt.
