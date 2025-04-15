@@ -169,6 +169,52 @@ sudo reboot
 ```
 It’s not Windows, but it doesn’t hurt.
 
+🛡️ System Security Sweep
+
+Recommended checks after recovery or periodically:
+
+1. Lynis security audit:
+
+sudo apt install lynis
+sudo lynis audit system
+
+Review the suggestions, especially anything rated as "warning" or "suggestion".
+
+2. Check for open ports:
+
+sudo netstat -tulnp
+
+Or:
+
+sudo ss -tulnp
+
+3. Check for unauthorized users:
+
+cut -d: -f1 /etc/passwd
+
+Look for unexpected system users.
+
+4. List running services:
+
+systemctl list-units --type=service --state=running
+
+5. Check for rootkits:
+
+sudo apt install chkrootkit
+sudo chkrootkit
+
+6. Audit installed packages:
+
+dpkg -l
+
+Scan for things you don't remember installing.
+
+7. Review sudoers file (CAREFUL):
+
+sudo visudo
+
+Look for unexpected user access.
+
 ---
 
 ## ✅ Good to Know
