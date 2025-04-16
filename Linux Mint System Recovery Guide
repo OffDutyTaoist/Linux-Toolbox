@@ -169,7 +169,7 @@ sudo reboot
 ```
 It’s not Windows, but it doesn’t hurt.
 
-🛡️ System Security Sweep
+🛡## System Security Sweep
 
 Recommended checks after recovery or periodically:
 
@@ -214,6 +214,49 @@ Scan for things you don't remember installing.
 sudo visudo
 
 Look for unexpected user access.
+
+---
+
+## Weekly Integrity Check:
+
+AIDE Weekly Integrity Check
+
+To ensure system file integrity is regularly verified, a cron job is set to run AIDE every Sunday at 2:00am.
+
+**Cron Job Configuration**:
+```bash
+sudo crontab -e
+
+Add the following line:
+
+0 2 * * 0 /usr/bin/aide --check > /var/log/aide/aide-weekly.log 2>&1
+
+Log File Location:
+/var/log/aide/aide-weekly.log
+
+To manually verify the log:
+
+cat /var/log/aide/aide-weekly.log
+
+This helps monitor unauthorized or accidental changes to critical system files.
+
+
+---
+
+
+Go with 1 for now — Nano is the easiest, and it'll drop you straight into a blank crontab ready to edit.
+
+Just press 1 and hit Enter, and once you’re in, paste this line at the bottom:
+
+0 2 * * 0 /usr/bin/aide --check > /var/log/aide/aide-weekly.log 2>&1
+
+Then:
+
+    Press Ctrl+O to save
+
+    Hit Enter to confirm the filename
+
+    Press Ctrl+X to exit
 
 ---
 
