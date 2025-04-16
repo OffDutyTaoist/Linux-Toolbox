@@ -1,0 +1,91 @@
+Toolbox Guide: Lock DNS to Cloudflare and Sanitize Wi-Fi on Linux Mint (NetworkManager)
+Objective:
+Lock system DNS to Cloudflare (1.1.1.1 / 1.0.0.1 and IPv6 equivalents).
+
+Remove all non-trusted Wi-Fi profiles.
+
+Connect only to your trusted network (Your Network).
+
+Ensure NordVPN uses Cloudflare DNS for secure tunneling.
+
+STEP-BY-STEP:
+1. Remove Untrusted Wi-Fi Connections
+List saved connections:
+
+bash
+Copy
+Edit
+nmcli connection show
+Then delete everything except the trusted one:
+
+bash
+Copy
+Edit
+sudo nmcli connection delete "Untrusted Network 1"
+sudo nmcli connection delete "Untrusted Network 2"
+# etc...
+2. Connect to Your Trusted Wi-Fi
+Scan for available networks:
+
+bash
+Copy
+Edit
+nmcli device wifi list
+Connect:
+
+bash
+Copy
+Edit
+nmcli device wifi connect "Your Network" password 'YourSecurePassword'
+3. Force Static DNS (Cloudflare)
+Prevent your network from using auto-assigned DNS:
+
+bash
+Copy
+Edit
+sudo nmcli connection modify "Your Network" ipv4.ignore-auto-dns yes
+sudo nmcli connection modify "Your Network" ipv4.dns "1.1.1.1,1.0.0.1"
+Enable IPv6 DNS override too (optional but recommended):
+
+bash
+Copy
+Edit
+sudo nmcli connection modify "Your Network" ipv6.ignore-auto-dns yes
+sudo nmcli connection modify "Your Network" ipv6.dns "2606:4700:4700::1111,2606:4700:4700::1001"
+Apply the changes:
+
+bash
+Copy
+Edit
+nmcli connection down "Your Network"
+nmcli connection up "Your Network"
+4. Configure NordVPN DNS
+Set NordVPN to use Cloudflare DNS as well:
+
+bash
+Copy
+Edit
+nordvpn set dns 1.1.1.1 1.0.0.1
+nordvpn connect usXXXX  # Replace with your preferred NordVPN server
+5. Confirm DNS is Set Correctly
+Check DNS settings:
+
+bash
+Copy
+Edit
+resolvectl status
+Look for:
+
+Global DNS → 1.1.1.1, 1.0.0.1
+
+Wi-Fi Interface (e.g., wlp5s0) → Cloudflare DNS only
+
+NordVPN Interface (e.g., nordlynx) → Also using Cloudflare
+
+Notes:
+Replace "Your Network" and 'YourSecurePassword' with your actual values.
+
+This process clears old connections and enforces DNS privacy, preventing leakage.
+
+You can rerun this guide after a reinstall, network reset, or if you suspect DNS hijacking.
+
