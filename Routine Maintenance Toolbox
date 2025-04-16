@@ -32,3 +32,11 @@ Store backups externally.
 sudo reboot
                    
 It’s not Windows, but it doesn’t hurt.
+
+8. Manual integrity check
+sudo aide --config /etc/aide/aide.conf --check | sudo tee /var/log/aide/aide-weekly.log > /dev/null
+
+In another terminal you can run:
+top | grep aide
+
+To monitor the progress.
