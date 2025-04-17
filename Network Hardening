@@ -1,91 +1,117 @@
-Toolbox Guide: Lock DNS to Cloudflare and Sanitize Wi-Fi on Linux Mint (NetworkManager)
-Objective:
-Lock system DNS to Cloudflare (1.1.1.1 / 1.0.0.1 and IPv6 equivalents).
+# 🛡️ Toolbox Guide: Lock DNS to Cloudflare and Sanitize Wi-Fi on Linux Mint (NetworkManager)
 
-Remove all non-trusted Wi-Fi profiles.
+## 🎯 Objective:
+- Lock system DNS to Cloudflare (`1.1.1.1`, `1.0.0.1`, `2606:4700:4700::1111`, `2606:4700:4700::1001`)
+- Remove all non-trusted Wi-Fi profiles
+- Connect only to your trusted network (`YourNetwork`)
+- Ensure NordVPN uses Cloudflare DNS for secure tunneling
 
-Connect only to your trusted network (Your Network).
+---
 
-Ensure NordVPN uses Cloudflare DNS for secure tunneling.
+## STEP 1: Remove Untrusted Wi-Fi Connections
 
-STEP-BY-STEP:
-1. Remove Untrusted Wi-Fi Connections
-List saved connections:
+**List saved connections:**
 
-bash
-Copy
-Edit
 nmcli connection show
-Then delete everything except the trusted one:
 
-bash
-Copy
-Edit
+# Delete everything except your trusted network:
+
 sudo nmcli connection delete "Untrusted Network 1"
 sudo nmcli connection delete "Untrusted Network 2"
-# etc...
-2. Connect to Your Trusted Wi-Fi
-Scan for available networks:
 
-bash
-Copy
-Edit
+# Repeat for others if needed
+
+## STEP 2: Connect to Trusted Wi-Fi
+
+# Scan for networks:
+
 nmcli device wifi list
-Connect:
 
-bash
-Copy
-Edit
-nmcli device wifi connect "Your Network" password 'YourSecurePassword'
-3. Force Static DNS (Cloudflare)
-Prevent your network from using auto-assigned DNS:
+# Connect:
 
-bash
-Copy
-Edit
-sudo nmcli connection modify "Your Network" ipv4.ignore-auto-dns yes
-sudo nmcli connection modify "Your Network" ipv4.dns "1.1.1.1,1.0.0.1"
-Enable IPv6 DNS override too (optional but recommended):
+nmcli device wifi connect "YourNetwork" password 'YourSecurePassword'
 
-bash
-Copy
-Edit
-sudo nmcli connection modify "Your Network" ipv6.ignore-auto-dns yes
-sudo nmcli connection modify "Your Network" ipv6.dns "2606:4700:4700::1111,2606:4700:4700::1001"
-Apply the changes:
+## STEP 3: Force Static DNS (Cloudflare)
 
-bash
-Copy
-Edit
-nmcli connection down "Your Network"
-nmcli connection up "Your Network"
-4. Configure NordVPN DNS
-Set NordVPN to use Cloudflare DNS as well:
+# Override auto-assigned DNS:
 
-bash
-Copy
-Edit
+sudo nmcli connection modify "YourNetwork" ipv4.ignore-auto-dns yes
+sudo nmcli connection modify "YourNetwork" ipv4.dns "1.1.1.1,1.0.0.1"
+
+# (Recommended) Add IPv6 override:
+
+sudo nmcli connection modify "YourNetwork" ipv6.ignore-auto-dns yes
+sudo nmcli connection modify "YourNetwork" ipv6.dns "2606:4700:4700::1111,2606:4700:4700::1001"
+
+# Apply the changes:
+
+nmcli connection down "YourNetwork"
+nmcli connection up "YourNetwork"
+
+## STEP 4: Configure NordVPN DNS
+
+# Lock NordVPN to Cloudflare DNS:
+
 nordvpn set dns 1.1.1.1 1.0.0.1
-nordvpn connect usXXXX  # Replace with your preferred NordVPN server
-5. Confirm DNS is Set Correctly
-Check DNS settings:
+nordvpn connect usXXXX  # Replace 'usXXXX' with your preferred server
 
-bash
-Copy
-Edit
+## STEP 5: Confirm DNS Is Set Correctly
+
+# Check active DNS config:
+
 resolvectl status
-Look for:
 
-Global DNS → 1.1.1.1, 1.0.0.1
+# Look for:
 
-Wi-Fi Interface (e.g., wlp5s0) → Cloudflare DNS only
+Global DNS: → 1.1.1.1, 1.0.0.1
 
-NordVPN Interface (e.g., nordlynx) → Also using Cloudflare
+Wi-Fi Interface: → Should only show Cloudflare DNS
 
-Notes:
-Replace "Your Network" and 'YourSecurePassword' with your actual values.
+NordVPN Interface: (e.g., nordlynx) → Should also reflect Cloudflare
 
-This process clears old connections and enforces DNS privacy, preventing leakage.
+## BONUS: Quick Restore Script
+Paste this into a .sh file (e.g., wifi-relock.sh), make it executable with chmod +x wifi-relock.sh, and run with sudo ./wifi-relock.sh.
 
-You can rerun this guide after a reinstall, network reset, or if you suspect DNS hijacking.
+#!/bin/bash
 
+# Replace with your actual SSID and password
+
+SSID="YourNetwork"
+PASSWORD="YourSecurePassword"
+
+# Delete all connections except your trusted one
+
+for conn in $(nmcli connection show | awk 'NR>1 {print $1}' | grep -v "$SSID"); do
+    sudo nmcli connection delete "$conn"
+done
+
+# Reconnect
+
+nmcli device wifi connect "$SSID" password "$PASSWORD"
+
+# Force DNS to Cloudflare
+
+nmcli connection modify "$SSID" ipv4.ignore-auto-dns yes
+nmcli connection modify "$SSID" ipv4.dns "1.1.1.1,1.0.0.1"
+nmcli connection modify "$SSID" ipv6.ignore-auto-dns yes
+nmcli connection modify "$SSID" ipv6.dns "2606:4700:4700::1111,2606:4700:4700::1001"
+
+# Apply changes
+
+nmcli connection down "$SSID"
+nmcli connection up "$SSID"
+
+# Set NordVPN DNS
+
+nordvpn set dns 1.1.1.1 1.0.0.1
+
+echo "Wi-Fi and DNS have been sanitized and locked to Cloudflare."
+
+## Notes:
+Replace "YourNetwork" and 'YourSecurePassword' with your actual values.
+
+Run this guide any time after a reinstall, system compromise, or if DNS hijacking is suspected.
+
+Always verify with resolvectl or dig to ensure DNS integrity.
+
+Stay frosty, Ponyboy. 🔒✨
